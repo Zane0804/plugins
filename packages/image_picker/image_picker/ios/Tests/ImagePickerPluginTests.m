@@ -1,4 +1,4 @@
-// Copyright 2019 The Chromium Authors. All rights reserved.
+// Copyright 2013 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,6 +6,19 @@
 
 @import image_picker;
 @import XCTest;
+
+@interface MockViewController : UIViewController
+@property(nonatomic, retain) UIViewController *mockPresented;
+@end
+
+@implementation MockViewController
+@synthesize mockPresented;
+
+- (UIViewController *)presentedViewController {
+  return mockPresented;
+}
+
+@end
 
 @interface FLTImagePickerPlugin (Test)
 @property(copy, nonatomic) FlutterResult result;
@@ -23,8 +36,7 @@
   if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
     return;
   }
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call =
       [FlutterMethodCall methodCallWithMethodName:@"pickImage"
                                         arguments:@{@"source" : @(0), @"cameraDevice" : @(0)}];
@@ -39,8 +51,7 @@
   if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
     return;
   }
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call =
       [FlutterMethodCall methodCallWithMethodName:@"pickImage"
                                         arguments:@{@"source" : @(0), @"cameraDevice" : @(1)}];
@@ -55,8 +66,7 @@
   if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
     return;
   }
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call =
       [FlutterMethodCall methodCallWithMethodName:@"pickVideo"
                                         arguments:@{@"source" : @(0), @"cameraDevice" : @(0)}];
@@ -71,8 +81,7 @@
   if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
     return;
   }
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call =
       [FlutterMethodCall methodCallWithMethodName:@"pickImage"
                                         arguments:@{@"source" : @(0), @"cameraDevice" : @(1)}];
@@ -90,8 +99,7 @@
   if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
     return;
   }
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call =
       [FlutterMethodCall methodCallWithMethodName:@"pickVideo"
                                         arguments:@{@"source" : @(0), @"cameraDevice" : @(1)}];
@@ -104,8 +112,7 @@
 
 #pragma mark - Test video duration
 - (void)testPickingVideoWithDuration {
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call = [FlutterMethodCall
       methodCallWithMethodName:@"pickVideo"
                      arguments:@{@"source" : @(0), @"cameraDevice" : @(0), @"maxDuration" : @95}];
@@ -116,8 +123,7 @@
 }
 
 - (void)testPluginPickImageSelectMultipleTimes {
-  FLTImagePickerPlugin *plugin =
-      [[FLTImagePickerPlugin alloc] initWithViewController:[UIViewController new]];
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
   FlutterMethodCall *call =
       [FlutterMethodCall methodCallWithMethodName:@"pickImage"
                                         arguments:@{@"source" : @(0), @"cameraDevice" : @(0)}];
@@ -129,6 +135,18 @@
   };
   [plugin handleSavedPath:@"test"];
   [plugin handleSavedPath:@"test"];
+}
+
+- (void)testViewController {
+  UIWindow *window = [UIWindow new];
+  MockViewController *vc1 = [MockViewController new];
+  window.rootViewController = vc1;
+
+  UIViewController *vc2 = [UIViewController new];
+  vc1.mockPresented = vc2;
+
+  FLTImagePickerPlugin *plugin = [FLTImagePickerPlugin new];
+  XCTAssertEqual([plugin viewControllerWithWindow:window], vc2);
 }
 
 @end
